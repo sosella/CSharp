@@ -38,6 +38,7 @@ namespace CSharp.TestSuites
             LINQ17();
             LINQ18();
             LINQ19();
+            LINQ20();
 
             WriteTestSuiteName();
         }
@@ -688,6 +689,25 @@ namespace CSharp.TestSuites
                     Console.WriteLine($" - {ingredient.Name}");
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void LINQ20()
+        {
+            WriteMethodName(MethodBase.GetCurrentMethod().Name);
+
+            var rand = new Random((int) (DateTime.Now.Ticks % int.MaxValue));
+            List<int> numbers = new List<int>();
+            for (int n = 0; n < 20; n++)
+            {
+                numbers.Add(rand.Next() % 1000);
+            }
+
+            var orderedNumbers = numbers.OrderBy(p => p).Reverse().ToList();
+
+            foreach (int n in orderedNumbers) { Console.WriteLine($"{n}"); }
         }
     }
 }
