@@ -39,6 +39,7 @@ namespace CSharp.TestSuites
             LINQ18();
             LINQ19();
             LINQ20();
+            LINQ21();
 
             WriteTestSuiteName();
         }
@@ -708,6 +709,20 @@ namespace CSharp.TestSuites
             var orderedNumbers = numbers.OrderBy(p => p).Reverse().ToList();
 
             foreach (int n in orderedNumbers) { Console.WriteLine($"{n}"); }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void LINQ21()
+        {
+            WriteMethodName(MethodBase.GetCurrentMethod().Name);
+
+            int[] numbers1 = { 12, 15, 6, 18, 7, 3, 9, 4 };
+            int[] numbers2 = { 2, 3, 8, 7, 9, 15 };
+
+            var numbers3 = numbers1.Where(n1 => !numbers2.Contains(n1));
+            foreach (int n in numbers3) { Console.WriteLine(n); }
         }
     }
 }
