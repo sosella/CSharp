@@ -49,7 +49,7 @@ namespace CSharp.TestSuites
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
             Console.WriteLine("Before call to ReturnStringAsync");
-            Task task = ReturnStringAsync("Hello");
+            var task = ReturnStringAsync("Hello");
             Console.WriteLine("After call to ReturnStringAsync");
 
             Console.WriteLine("Waiting on the task");
@@ -57,32 +57,68 @@ namespace CSharp.TestSuites
             Console.WriteLine("After call to Wait on task");
         }
 
+        private void Async3()
+        {
+            WriteMethodName(MethodBase.GetCurrentMethod().Name);
+
+            Console.WriteLine("Before call to Async3Task without calling Result");
+            Async3Task(false).Wait();
+            Console.WriteLine("After call to Async3Task without calling Result");
+
+            Console.WriteLine("Before call to Async3Task with calling Result");
+            Async3Task(true).Wait();
+            Console.WriteLine("After call to Async3Task with calling Result");
+        }
+
+        private async Task Async3Task(bool callResult)
+        {
+            Console.WriteLine("Before call to ReturnStringAsync");
+            var task = ReturnStringAsync("Hello", 3000);
+            Console.WriteLine("After call to ReturnStringAsync");
+
+            if (callResult)
+            {
+                Console.WriteLine("Before call to task.Result");
+                var str = task.Result;
+                Console.WriteLine($"After call to task.Result: {str}");
+            }
+
+            Console.WriteLine("Before first await");
+            string str2 = (await task);
+            Console.WriteLine($"After first await");
+
+            Console.WriteLine($"str2: {str2}");
+
+            int len = (await task).Length;
+            Console.WriteLine($"After second await: {len}");
+        }
+
         // async modifier says that the method can contain async code
-        private async Task<string> ReturnStringAsync(string text)
+        private async Task<string> ReturnStringAsync(string text, int millisecondsDelay = 1000)
         {
             Console.WriteLine("In ReturnStringAsync, before 1st call to Task.Delay");
-            await Task.Delay(3000);
+            await Task.Delay(millisecondsDelay);
             Console.WriteLine("In ReturnStringAsync, after 1st call to Task.Delay");
 
             Console.WriteLine("In ReturnStringAsync, before 2nd call to Task.Delay");
-            await Task.Delay(3000);
+            await Task.Delay(millisecondsDelay);
             Console.WriteLine("In ReturnStringAsync, after 2nd call to Task.Delay");
 
             return text;
         }
 
-        private void Async3()
+        private void Async4()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
-            Console.WriteLine("Before call to Async3Task");
-            Task task = Async3Task();
-            Console.WriteLine("After call to Async3Task.  Now waiting on the task.");
+            Console.WriteLine("Before call to Async4Task");
+            Task task = Async4Task();
+            Console.WriteLine("After call to Async4Task.  Now waiting on the task.");
             task.Wait();
             Console.WriteLine("After call to Wait on task");
         }
 
-        private async Task Async3Task()
+        private async Task Async4Task()
         {
             // Async3Task() will wait here, but will return control to the caller
             int respLen = await AccessTheWebAsync("http://msdn.microsoft.com");
@@ -128,7 +164,7 @@ namespace CSharp.TestSuites
             return urlContents.Length;
         }
 
-        private void Async4()
+        private void Async5()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -187,7 +223,7 @@ namespace CSharp.TestSuites
             done = true;
         }
 
-        private void Async5()
+        private void Async6()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -227,7 +263,7 @@ namespace CSharp.TestSuites
 
         private readonly int kPrintMessageDelay = 500;
 
-        private void Async6()
+        private void Async7()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -279,7 +315,7 @@ namespace CSharp.TestSuites
             Console.WriteLine("Hello Task library!");
         }
 
-        private void Async7()
+        private void Async8()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -293,12 +329,6 @@ namespace CSharp.TestSuites
             Console.WriteLine("Before Invoke");
             Parallel.Invoke(actions);
             Console.WriteLine("After Invoke");
-        }
-
-        private void Async8()
-        {
-            WriteMethodName(MethodBase.GetCurrentMethod().Name);
-
         }
     }
 }
