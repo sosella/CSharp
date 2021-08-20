@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading;
@@ -14,19 +16,20 @@ namespace CSharp.TestSuites
         {
             WriteTestSuiteName();
 
-            Async1();
-            Async2();
-            Async3();
-            Async4();
-            Async5();
-            Async6();
-            Async7();
-            Async8();
+            /*AsyncTest1();
+            AsyncTest2();
+            AsyncTest3();
+            AsyncTest4();
+            AsyncTest5();
+            AsyncTest6();
+            AsyncTest7();
+            AsyncTest8();*/
+            AsyncTest9();
 
             WriteTestSuiteName();
         }
 
-        private void Async1()
+        private void AsyncTest1()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -44,7 +47,7 @@ namespace CSharp.TestSuites
             }
         }
 
-        private void Async2()
+        private void AsyncTest2()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -57,7 +60,7 @@ namespace CSharp.TestSuites
             Console.WriteLine("After call to Wait on task");
         }
 
-        private void Async3()
+        private void AsyncTest3()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -107,7 +110,7 @@ namespace CSharp.TestSuites
             return text;
         }
 
-        private void Async4()
+        private void AsyncTest4()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -164,7 +167,7 @@ namespace CSharp.TestSuites
             return urlContents.Length;
         }
 
-        private void Async5()
+        private void AsyncTest5()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -223,7 +226,7 @@ namespace CSharp.TestSuites
             done = true;
         }
 
-        private void Async6()
+        private void AsyncTest6()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -263,7 +266,7 @@ namespace CSharp.TestSuites
 
         private readonly int kPrintMessageDelay = 500;
 
-        private void Async7()
+        private void AsyncTest7()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -315,7 +318,7 @@ namespace CSharp.TestSuites
             Console.WriteLine("Hello Task library!");
         }
 
-        private void Async8()
+        private void AsyncTest8()
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
@@ -329,6 +332,204 @@ namespace CSharp.TestSuites
             Console.WriteLine("Before Invoke");
             Parallel.Invoke(actions);
             Console.WriteLine("After Invoke");
+        }
+
+        private void AsyncTest9()
+        {
+            WriteMethodName(MethodBase.GetCurrentMethod().Name);
+
+            for (int i = 0; i <= 5; i++)
+            {
+                AsyncTest9Main(i).Wait();
+            }
+        }
+
+        private class TimedResult<T>
+        {
+            public TimeSpan elapsedTime;
+            public T result;
+        }
+
+        private async Task AsyncTest9Main(int testCase)
+        {
+            Console.WriteLine($"Test Case: {testCase}");
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            TimedResult<int> complexSum = null;
+            TimedResult<string> complexWord = null;
+
+            Console.WriteLine($"Time elapsed 1... {stopwatch.Elapsed}");
+
+            // Synchronous at the awaits
+            if (testCase == 0)
+            {
+                complexSum = await SlowAndComplexSumAsync();
+
+                Console.WriteLine($"Time elapsed 2... {stopwatch.Elapsed}");
+
+                complexWord = await SlowAndComplexWordAsync();
+
+                Console.WriteLine("Time elapsed 3..." + stopwatch.Elapsed);
+            }
+
+            // Synchronous at the awaits
+            else if (testCase == 1)
+            {
+                complexSum = new TimedResult<int>();
+                await SlowAndComplexSumAsync();
+
+                Console.WriteLine($"Time elapsed 2... {stopwatch.Elapsed}");
+
+                complexWord = new TimedResult<string>();
+                await SlowAndComplexWordAsync();
+
+                Console.WriteLine("Time elapsed 3..." + stopwatch.Elapsed);
+            }
+
+            // Synchronous at the awaits, tasks start and execute in parallel
+            else if (testCase == 2)
+            {
+                var complexSumTask = SlowAndComplexSumAsync();
+
+                Console.WriteLine($"Time elapsed 2... {stopwatch.Elapsed}");
+
+                var complexWordTask = SlowAndComplexWordAsync();
+
+                Console.WriteLine("Time elapsed 3..." + stopwatch.Elapsed);
+
+                complexSum = (await complexSumTask);
+
+                Console.WriteLine("Time elapsed 4..." + stopwatch.Elapsed);
+
+                complexWord = (await complexWordTask);
+
+                Console.WriteLine("Time elapsed 5..." + stopwatch.Elapsed);
+            }
+
+            // Synchronous at the Result, tasks start and execute in parallel
+            else if (testCase == 3)
+            {
+                var complexSumTask = SlowAndComplexSumAsync();
+
+                Console.WriteLine($"Time elapsed 2... {stopwatch.Elapsed}");
+
+                var complexWordTask = SlowAndComplexWordAsync();
+
+                Console.WriteLine("Time elapsed 3..." + stopwatch.Elapsed);
+
+                complexSum = complexSumTask.Result;
+
+                Console.WriteLine("Time elapsed 4..." + stopwatch.Elapsed);
+
+                complexWord = complexWordTask.Result;
+
+                Console.WriteLine("Time elapsed 5..." + stopwatch.Elapsed);
+            }
+
+            // Synchronous at the await Task.WhenAll, tasks start and execute in parallel
+            else if (testCase == 4)
+            {
+                var complexSumTask = SlowAndComplexSumAsync();
+
+                Console.WriteLine($"Time elapsed 2... {stopwatch.Elapsed}");
+
+                var complexWordTask = SlowAndComplexWordAsync();
+
+                Console.WriteLine("Time elapsed 3..." + stopwatch.Elapsed);
+
+                var complexSumTaskResultRef = complexSumTask.Result;
+
+                Console.WriteLine("Time elapsed 4..." + stopwatch.Elapsed);
+
+                var complexWordTaskResultRef = complexWordTask.Result;
+
+                Console.WriteLine("Time elapsed 5..." + stopwatch.Elapsed);
+
+                complexSum = complexSumTaskResultRef;
+
+                Console.WriteLine("Time elapsed 6..." + stopwatch.Elapsed);
+
+                complexWord = complexWordTaskResultRef;
+
+                Console.WriteLine("Time elapsed 7..." + stopwatch.Elapsed);
+            }
+
+            // Synchronous at the await Task.WhenAll, tasks start and execute in parallel
+            else if (testCase == 5)
+            {
+                var complexSumTask = SlowAndComplexSumAsync();
+
+                Console.WriteLine($"Time elapsed 2... {stopwatch.Elapsed}");
+
+                var complexWordTask = SlowAndComplexWordAsync();
+
+                Console.WriteLine("Time elapsed 3..." + stopwatch.Elapsed);
+
+                await Task.WhenAll(complexSumTask, complexWordTask);
+
+                Console.WriteLine("Time elapsed 4..." + stopwatch.Elapsed);
+
+                complexSum = complexSumTask.Result;
+
+                Console.WriteLine("Time elapsed 5..." + stopwatch.Elapsed);
+
+                complexWord = complexWordTask.Result;
+
+                Console.WriteLine("Time elapsed 6..." + stopwatch.Elapsed);
+            }
+
+            Console.WriteLine($"Result of complex sum = {complexSum.result} @ {complexSum.elapsedTime}");
+            Console.WriteLine($"Result of complex letter processing {complexWord.result} @ {complexSum.elapsedTime}");
+        }
+
+        private static async Task<TimedResult<int>> SlowAndComplexSumAsync()
+        {
+            Console.WriteLine($"Starting SlowAndComplexSumAsync");
+
+            TimedResult<int> timedresult = new TimedResult<int>();
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            int sum = 0;
+            foreach (var counter in Enumerable.Range(0, 25))
+            {
+                sum += counter;
+                await Task.Delay(100);
+            }
+
+            timedresult.elapsedTime = stopwatch.Elapsed;
+            timedresult.result = sum;
+
+            Console.WriteLine($"Ending SlowAndComplexSumAsync");
+
+            return timedresult;
+        }
+
+        private static async Task<TimedResult<string>> SlowAndComplexWordAsync()
+        {
+            Console.WriteLine($"Starting SlowAndComplexWordAsync");
+
+            TimedResult<string> timedresult = new TimedResult<string>();
+
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            var word = string.Empty;
+            foreach (var counter in Enumerable.Range(65, 26))
+            {
+                word = string.Concat(word, (char)counter);
+                await Task.Delay(150);
+            }
+
+            timedresult.elapsedTime = stopwatch.Elapsed;
+            timedresult.result = word;
+
+            Console.WriteLine($"Ending SlowAndComplexWordAsync");
+
+            return timedresult;
         }
     }
 }
