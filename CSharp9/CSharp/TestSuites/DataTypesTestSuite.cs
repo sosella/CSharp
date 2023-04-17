@@ -20,7 +20,7 @@ namespace CSharp.TestSuites
         {
             WriteMethodName(MethodBase.GetCurrentMethod().Name);
 
-            int myInt = new int();
+            int myInt = new();
             Console.WriteLine($"myInt={myInt}");
         }
 
