@@ -4,7 +4,7 @@ namespace CSharp.TestSuites
 {
     public abstract class TestSuite
     {
-        public string Name { get { return this.GetType().Name; } }
+        public string Name { get { return GetType().Name; } }
 
         public void WriteTestSuiteName()
         {
